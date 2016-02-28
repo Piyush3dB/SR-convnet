@@ -46,8 +46,14 @@ psnr_srcnn = compute_psnr(im_gnd,im_h);
 fprintf('PSNR for Bicubic Interpolation: %f dB\n', psnr_bic);
 fprintf('PSNR for SRCNN Reconstruction: %f dB\n', psnr_srcnn);
 
-figure, imshow(im_b); title('Bicubic Interpolation');
-figure, imshow(im_h); title('SRCNN Reconstruction');
+%figure, imshow(im_b); title('Bicubic Interpolation');
+%figure, imshow(im_h); title('SRCNN Reconstruction');
 
 %imwrite(im_b, ['Bicubic Interpolation' '.bmp']);
 %imwrite(im_h, ['SRCNN Reconstruction' '.bmp']);
+
+
+% Console output:
+% PSNR for Bicubic Interpolation: 24.037923 dB
+% PSNR for SRCNN Reconstruction:  27.953003 dB
+%

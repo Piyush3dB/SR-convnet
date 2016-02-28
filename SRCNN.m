@@ -14,25 +14,46 @@ conv3_patchsize = sqrt(conv3_patchsize2);
 weights_conv1 = reshape(weights_conv1, conv1_patchsize, conv1_patchsize, conv1_filters);
 conv1_data = zeros(hei, wid, conv1_filters);
 for i = 1 : conv1_filters
-    conv1_data(:,:,i) = imfilter(im_b, weights_conv1(:,:,i), 'same', 'replicate');
+    
+    
+    subfilter = weights_conv1(:,:,i);
+    subdata   = im_b;
+    conved    = imfilter(im_b, subfilter, 'same', 'replicate');
+    
+    % CONV
+    conv1_data(:,:,i) = conved;
+    
+    % RELU
     conv1_data(:,:,i) = max(conv1_data(:,:,i) + biases_conv1(i), 0);
 end
 
 %% conv2
 conv2_data = zeros(hei, wid, conv2_filters);
 for i = 1 : conv2_filters
+    
+    % CONV
     for j = 1 : conv2_channels
-        conv2_subfilter = reshape(weights_conv2(j,:,i), conv2_patchsize, conv2_patchsize);
-        conv2_data(:,:,i) = conv2_data(:,:,i) + imfilter(conv1_data(:,:,j), conv2_subfilter, 'same', 'replicate');
+        subfilter = reshape(weights_conv2(j,:,i), conv2_patchsize, conv2_patchsize);
+        subdata   = conv1_data(:,:,j);
+        conved    = imfilter(subdata, subfilter, 'same', 'replicate');
+        
+        conv2_data(:,:,i) = conv2_data(:,:,i) + conved;
     end
+    
+    % RELU
     conv2_data(:,:,i) = max(conv2_data(:,:,i) + biases_conv2(i), 0);
 end
 
 %% conv3
 conv3_data = zeros(hei, wid);
 for i = 1 : conv3_channels
-    conv3_subfilter = reshape(weights_conv3(i,:), conv3_patchsize, conv3_patchsize);
-    conv3_data(:,:) = conv3_data(:,:) + imfilter(conv2_data(:,:,i), conv3_subfilter, 'same', 'replicate');
+    
+    subfilter = reshape(weights_conv3(i,:), conv3_patchsize, conv3_patchsize);
+    subdata   = conv2_data(:,:,i);
+    conved    = imfilter(subdata, subfilter, 'same', 'replicate');
+    
+    % CONV
+    conv3_data(:,:) = conv3_data(:,:) + conved;
 end
 
 %% SRCNN reconstruction
