@@ -1,0 +1,4 @@
+
+On first checkin:
+PSNR for Bicubic Interpolation: 24.037923 dB
+PSNR for SRCNN Reconstruction: 27.953003 dB
