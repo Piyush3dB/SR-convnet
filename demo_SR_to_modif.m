@@ -1,6 +1,6 @@
 format compact
 close all;
-clear all;
+clear;
 
 %% read ground truth image
 im  = imread('Set5/butterfly_GT.bmp');

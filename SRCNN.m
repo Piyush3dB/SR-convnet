@@ -10,15 +10,33 @@ conv2_patchsize = sqrt(conv2_patchsize2);
 conv3_patchsize = sqrt(conv3_patchsize2);
 [hei, wid] = size(im_b);
 
+weights_conv1_h = weights_conv1;
+weights_conv2_h = weights_conv2;
+weights_conv3_h = weights_conv3;
+
+% Reshape weights
+weights_conv1 = reshape(weights_conv1 , conv1_patchsize, conv1_patchsize, conv1_filters);
+
+newTensor = NaN(conv2_channels, conv2_filters, conv2_patchsize, conv2_patchsize);
+for i = 1 : conv2_filters
+    for j = 1 : conv2_channels
+        subfilter = reshape(weights_conv2(j,:,i), conv2_patchsize, conv2_patchsize);
+        newTensor(j,i,:,:) = subfilter;
+    end
+end
+weights_conv2 = newTensor;
+
+weights_conv3 = reshape(weights_conv3', conv3_patchsize, conv3_patchsize, conv3_channels);
+
+
 %% conv1
-weights_conv1 = reshape(weights_conv1, conv1_patchsize, conv1_patchsize, conv1_filters);
 conv1_data = zeros(hei, wid, conv1_filters);
 for i = 1 : conv1_filters
     
     
     subfilter = weights_conv1(:,:,i);
     subdata   = im_b;
-    conved    = imfilter(im_b, subfilter, 'same', 'replicate');
+    conved    = imfilter(subdata, subfilter, 'same', 'replicate');
     
     % CONV
     conv1_data(:,:,i) = conved;
@@ -33,7 +51,7 @@ for i = 1 : conv2_filters
     
     % CONV
     for j = 1 : conv2_channels
-        subfilter = reshape(weights_conv2(j,:,i), conv2_patchsize, conv2_patchsize);
+        subfilter = reshape(weights_conv2(j,i,:,:), conv2_patchsize, conv2_patchsize);
         subdata   = conv1_data(:,:,j);
         conved    = imfilter(subdata, subfilter, 'same', 'replicate');
         
@@ -48,7 +66,7 @@ end
 conv3_data = zeros(hei, wid);
 for i = 1 : conv3_channels
     
-    subfilter = reshape(weights_conv3(i,:), conv3_patchsize, conv3_patchsize);
+    subfilter = weights_conv3(:,:,i);
     subdata   = conv2_data(:,:,i);
     conved    = imfilter(subdata, subfilter, 'same', 'replicate');
     
@@ -56,5 +74,7 @@ for i = 1 : conv3_channels
     conv3_data(:,:) = conv3_data(:,:) + conved;
 end
 
-%% SRCNN reconstruction
+% SRCNN reconstruction
+
+% RELU
 im_h = conv3_data(:,:) + biases_conv3;
