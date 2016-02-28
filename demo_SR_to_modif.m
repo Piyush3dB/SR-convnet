@@ -26,25 +26,27 @@ end
 im_gnd = modcrop(im, up_scale);
 im_gnd = single(im_gnd)/255;
 
+params = Weights(model);
+
 %% bicubic interpolation
-im_l = imresize(im_gnd, 1/up_scale, 'bicubic');
-im_b = imresize(im_l, up_scale, 'bicubic');
+im_l = imresize(im_gnd, 1/up_scale, 'bicubic'); % Low resolution
+im_b = imresize(im_l  ,   up_scale, 'bicubic'); % Bicubic high res
 
 %% SRCNN
-im_h = SRCNN(model, im_b);
+im_h = SRCNN(model, im_b);  % SRCNN high res
 
 %% remove border
-im_h = shave(uint8(im_h * 255), [up_scale, up_scale]);
+im_h   = shave(uint8(im_h   * 255), [up_scale, up_scale]);
 im_gnd = shave(uint8(im_gnd * 255), [up_scale, up_scale]);
-im_b = shave(uint8(im_b * 255), [up_scale, up_scale]);
+im_b   = shave(uint8(im_b   * 255), [up_scale, up_scale]);
 
 %% compute PSNR
-psnr_bic = compute_psnr(im_gnd,im_b);
-psnr_srcnn = compute_psnr(im_gnd,im_h);
+psnr_bic   = compute_psnr(im_gnd, im_b);
+psnr_srcnn = compute_psnr(im_gnd, im_h);
 
 %% show results
-fprintf('PSNR for Bicubic Interpolation: %f dB\n', psnr_bic);
-fprintf('PSNR for SRCNN Reconstruction: %f dB\n', psnr_srcnn);
+fprintf('PSNR for Bicubic Interpolation: %f dB\n', psnr_bic  );
+fprintf('PSNR for SRCNN Reconstruction : %f dB\n', psnr_srcnn);
 
 %figure, imshow(im_b); title('Bicubic Interpolation');
 %figure, imshow(im_h); title('SRCNN Reconstruction');
